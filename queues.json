@@ -24,6 +24,12 @@
         "notes": "Game mode deprecated"
     },
     {
+        "queueId": 67420,
+        "map": "Summoner's Rift",
+        "description": "5v5 Ranked Premade games",
+        "notes": "Game mode deprecated"
+    },
+    {
         "queueId": 7,
         "map": "Summoner's Rift",
         "description": "Co-op vs AI games",
