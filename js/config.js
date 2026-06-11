@@ -10,4 +10,4 @@ export const NAME_PATTERN = /^.+#.+$/;
 // Dev: NestJS defaults to http://localhost:3000.
 // Prod: set this to your deployed API origin, e.g. "https://api.example.com".
 // Leave it "" to call a same-origin API (when the API is served under /).
-export const API_BASE = "http://localhost:3000";
+export const API_BASE = "https://r10t-4p1-wr4pp3r.vercel.app";
