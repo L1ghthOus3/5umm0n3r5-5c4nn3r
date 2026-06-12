@@ -10,6 +10,4 @@ export const NAME_PATTERN = /^.+#.+$/;
 // Pick the API origin from where the site is running: localhost when developing
 // locally, the deployed Vercel API in production.
 const isDev = false;
-export const API_BASE = isDev
-  ? "http://localhost:3000"
-  : "https://r10t-4p1-wr4pp3r.vercel.app";
+export const API_BASE = "https://r10t-4p1-wr4pp3r.vercel.app";
