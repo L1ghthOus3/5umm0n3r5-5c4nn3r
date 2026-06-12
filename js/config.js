@@ -7,7 +7,9 @@ export const NAME_PATTERN = /^.+#.+$/;
 // Base URL of the backend proxy (the NestJS API that holds RIOT_API_KEY
 // server-side — see README.md). The Riot key never reaches the browser now.
 //
-// Dev: NestJS defaults to http://localhost:3000.
-// Prod: set this to your deployed API origin, e.g. "https://api.example.com".
-// Leave it "" to call a same-origin API (when the API is served under /).
-export const API_BASE = "https://r10t-4p1-wr4pp3r.vercel.app";
+// Pick the API origin from where the site is running: localhost when developing
+// locally, the deployed Vercel API in production.
+const isDev = true;
+export const API_BASE = isDev
+  ? "http://localhost:3000"
+  : "https://r10t-4p1-wr4pp3r.vercel.app";

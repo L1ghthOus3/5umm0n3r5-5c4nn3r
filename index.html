@@ -937,6 +937,63 @@
   .legal a { color: var(--cyan-deep); text-decoration: none; }
   .legal a:hover { color: var(--cyan); text-shadow: 0 0 10px rgba(43, 214, 255, 0.5); }
 
+  /* ===== Mobile: stats dashboard ===== */
+  @media (max-width: 600px) {
+    .profile { padding: 20px 14px; }
+
+    /* reserve room at the bottom so the card never runs under the disclaimer */
+    .console, .profile { max-height: calc(100dvh - 58px); }
+
+    .stats-brand { font-size: 12px; }
+
+    /* sign-out: smaller and kept on one line */
+    .signout-btn {
+      font-size: 7px;
+      letter-spacing: 0;
+      padding: 8px 10px;
+      white-space: nowrap;
+    }
+
+    /* compact disclaimer pinned to the very bottom */
+    .legal { font-size: 12px; bottom: 8px; line-height: 1.35; }
+
+    /* summoner card stacks: portrait + winrate on top, identity below */
+    .summoner-card {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px 20px;
+      padding: 16px;
+      text-align: center;
+    }
+    .sc-identity { flex: 1 1 100%; order: 3; min-width: 0; width: 100%; }
+    .sc-name { font-size: 17px; word-break: normal; overflow-wrap: anywhere; }
+    .sc-sub, .sc-rankline { justify-content: center; }
+
+    /* match rows: keep champ + outcome + KDA; drop the wide CS column.
+       min-width:0 lets the flex items shrink/wrap instead of overflowing
+       and overlapping their neighbours. */
+    .match { gap: 12px; padding: 10px 12px; }
+    .match-champ { flex: 0 0 44px; width: 44px; height: 44px; }
+    .match-champ img, .match-champ .fallback { width: 44px; height: 44px; }
+    .match-main { min-width: 0; }
+    .match-main .match-meta { overflow-wrap: anywhere; }
+    .match-cs { display: none; }
+    .match-kda { min-width: 0; flex: 0 0 auto; }
+    .match-meta { font-size: 13px; }
+    .match-ago { min-width: 0; }
+
+    /* match-detail summary wraps instead of overflowing */
+    .md-summary { font-size: 12px; }
+    .mh-title { font-size: 11px; }
+  }
+
+  /* ===== Smallest phones ===== */
+  @media (max-width: 380px) {
+    .match-meta .dur, .match-ago { display: none; }
+    .match-outcome { font-size: 10px; }
+    .match-score { font-size: 14px; }
+  }
+
   @media (max-width: 480px) {
     .wordmark .l1, .wordmark .l2 { font-size: 19px; }
     .console { padding: 34px 22px 30px; }
