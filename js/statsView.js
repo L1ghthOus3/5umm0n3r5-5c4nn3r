@@ -9,7 +9,7 @@ import {
 import { queueName, queueCategory } from "./queues.js";
 import { rankColor } from "./config.js";
 
-const PER_PAGE = 20;
+const PER_PAGE = 10;
 const ID_LIMIT = 100; // Match-V5 caps /ids at 100 per request.
 
 function escapeHtml(s) {
