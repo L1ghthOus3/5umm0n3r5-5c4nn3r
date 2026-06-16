@@ -73,6 +73,15 @@ export function fetchMatch(matchId, region) {
   return getJson(url, "Match");
 }
 
+// GET /lol-challenges-v1/player-data/:puuid?region=
+// Returns a PlayerInfoDto: { challenges, preferences, totalPoints, categoryPoints }.
+export function fetchChallenges(puuid, region) {
+  const url =
+    `${API_BASE}/lol-challenges-v1/player-data/${encodeURIComponent(puuid)}` +
+    `?region=${encodeURIComponent(region)}`;
+  return getJson(url, "Challenges");
+}
+
 // GET /league-v4/entries/by-puuid/:puuid?region=
 // Best-effort: the backend already picks solo → flex → null and swallows
 // errors, so this returns the entry or null and never throws.

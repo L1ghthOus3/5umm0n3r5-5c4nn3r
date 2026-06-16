@@ -489,6 +489,14 @@
     border: 1px solid rgba(43, 214, 255, 0.5);
     padding: 2px 7px;
   }
+  /* Challenge total-points level; color set inline from rankColor(). */
+  .sc-challenge {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--cyan);
+    border: 1px solid currentColor;
+    padding: 2px 7px;
+  }
   .sc-rankline { display: flex; align-items: center; gap: 14px; }
   .sc-rank {
     display: inline-flex;
@@ -1079,6 +1087,7 @@
           <div class="sc-sub">
             <span class="sc-tag" id="scTag">#0000</span>
             <span class="sc-region" id="scRegion">NA</span>
+            <span class="sc-challenge" id="scChallenge" hidden></span>
           </div>
           <div class="sc-rankline">
             <span class="sc-rank" id="scRank"><span class="sc-medal"></span><span id="scRankText">UNRANKED</span></span>

@@ -1,10 +1,13 @@
 // Stats dashboard controller: summoner card, match history, and pagination.
 
-import { fetchMatchIds, fetchMatch, fetchRankedEntry } from "./riotApi.js";
+import {
+  fetchMatchIds, fetchMatch, fetchRankedEntry, fetchChallenges,
+} from "./riotApi.js";
 import {
   profileIconUrl, championIconById, championNameById, itemIconUrl,
 } from "./champions.js";
 import { queueName, queueCategory } from "./queues.js";
+import { rankColor } from "./config.js";
 
 const PER_PAGE = 20;
 const ID_LIMIT = 100; // Match-V5 caps /ids at 100 per request.
@@ -88,6 +91,7 @@ export function initStatsView() {
     name: document.getElementById("scName"),
     tag: document.getElementById("scTag"),
     region: document.getElementById("scRegion"),
+    challenge: document.getElementById("scChallenge"),
     rank: document.getElementById("scRank"),
     rankText: document.getElementById("scRankText"),
     lp: document.getElementById("scLp"),
@@ -109,6 +113,7 @@ export function initStatsView() {
     raw: new Map(),   // matchId -> full MatchDto (for the detail scoreboard)
     page: 0,
     ranked: null,
+    challengeLevel: null, // totalPoints.level from lol-challenges-v1 (or null)
     seen: { wins: 0, total: 0 }, // win rate fallback from loaded matches
   };
 
@@ -124,6 +129,18 @@ export function initStatsView() {
     el.name.textContent = state.account.gameName;
     el.tag.textContent = `#${state.account.tagLine}`;
     el.region.textContent = state.region;
+
+    // Challenge total-points level next to the region (best-effort; hidden if
+    // unavailable or NONE).
+    const lvl = state.challengeLevel;
+    if (lvl && lvl !== "NONE") {
+      el.challenge.textContent = lvl;
+      el.challenge.style.color = rankColor(lvl) || "";
+      el.challenge.style.borderColor = rankColor(lvl) || "";
+      el.challenge.hidden = false;
+    } else {
+      el.challenge.hidden = true;
+    }
 
     if (firstMatch) {
       el.level.textContent = `LV ${firstMatch.summonerLevel}`;
@@ -483,13 +500,16 @@ export function initStatsView() {
     state.page = 0;
     restoreListView();
 
-    // Match ids (throws on hard failure → handled by caller) + ranked (best-effort).
-    const [ids, ranked] = await Promise.all([
+    // Match ids (throws on hard failure → handled by caller) + ranked and
+    // challenges (both best-effort; a failure here must not block login).
+    const [ids, ranked, challenges] = await Promise.all([
       fetchMatchIds(account.puuid, region, 0, ID_LIMIT),
       fetchRankedEntry(account.puuid, region),
+      fetchChallenges(account.puuid, region).catch(() => null),
     ]);
     state.ids = ids || [];
     state.ranked = ranked;
+    state.challengeLevel = challenges?.totalPoints?.level || null;
 
     if (state.ids.length === 0) {
       el.list.innerHTML = '<div class="match-empty">No recent matches found.</div>';

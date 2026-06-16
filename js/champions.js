@@ -37,6 +37,17 @@ export function itemIconUrl(itemId) {
   return `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${itemId}.png`;
 }
 
+// CommunityDragon challenge token icon for a given challenge level.
+// `level` is the ChallengeInfoDto level (BRONZE, PLATINUM, …); the asset
+// path wants it lowercased.
+export function challengeIconUrl(challengeId, level) {
+  if (challengeId == null || !level) return null;
+  return (
+    `https://raw.communitydragon.org/latest/game/assets/challenges/config/` +
+    `${encodeURIComponent(challengeId)}/tokens/${String(level).toLowerCase()}.png`
+  );
+}
+
 // Champion square icon by numeric championId (from match/mastery data).
 export function championIconById(championId) {
   const champ = champById[championId];
