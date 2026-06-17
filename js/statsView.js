@@ -2,6 +2,7 @@
 
 import {
   fetchMatchIds, fetchMatch, fetchRankedEntry, fetchChallenges,
+  fetchAccountByPuuid,
 } from "./riotApi.js";
 import {
   profileIconUrl, championIconById, championNameById, itemIconUrl,
@@ -291,7 +292,8 @@ export function initStatsView() {
       (iconUrl ? `<img alt="${escapeHtml(champName)}" loading="lazy" src="${iconUrl}">` : "") +
       `<span class="lvl">${p.champLevel || ""}</span>`;
     return (
-      `<div class="md-row ${isMe ? "me" : ""} ${teamWin ? "" : "loss-side"}">` +
+      `<div class="md-row ${isMe ? "me" : ""} ${teamWin ? "" : "loss-side"}"` +
+        ` data-puuid="${escapeHtml(p.puuid || "")}">` +
         `<div class="md-champ">${champInner}</div>` +
         `<div class="md-name">${escapeHtml(name)}</div>` +
         `<div class="md-kda">${p.kills}<span class="sep">/</span>` +
@@ -395,6 +397,23 @@ export function initStatsView() {
     el.detail
       .querySelectorAll(".md-champ img")
       .forEach((img) => { img.onerror = () => img.remove(); });
+
+    // Click a scoreboard row to open that player's profile.
+    el.detail.querySelectorAll(".md-row").forEach((row) => {
+      row.addEventListener("click", () => switchToPlayer(row.dataset.puuid));
+    });
+  }
+
+  // Resolve a puuid to an account and load that player's full profile, reusing
+  // the same flow as a fresh login. Stays in the profile view.
+  async function switchToPlayer(puuid) {
+    if (!puuid || puuid === state.account?.puuid) return; // ignore self / empty
+    try {
+      const account = await fetchAccountByPuuid(puuid, state.region);
+      await load(account, state.region);
+    } catch (e) {
+      console.warn("Could not open player profile", e);
+    }
   }
 
   // Click handler for a match row: swap the history list for the full scoreboard.

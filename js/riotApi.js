@@ -55,6 +55,16 @@ export function fetchAccount(gameName, tagLine, region) {
   });
 }
 
+// GET /account-v1/accounts/by-puuid/:puuid?region=
+// Reverse of fetchAccount: resolves a puuid back to { puuid, gameName, tagLine }.
+// Used to open another player's profile from a match scoreboard.
+export function fetchAccountByPuuid(puuid, region) {
+  const url =
+    `${API_BASE}/account-v1/accounts/by-puuid/${encodeURIComponent(puuid)}` +
+    `?region=${encodeURIComponent(region)}`;
+  return getJson(url, "Account");
+}
+
 // GET /match-v5/matches/by-puuid/:puuid?region=&start=&count=
 // Returns an array of match-id strings (newest first).
 export function fetchMatchIds(puuid, region, start = 0, count = 100) {
