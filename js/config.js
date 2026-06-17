@@ -14,7 +14,7 @@ export const RANK_COLOR = Object.freeze({
   PLATINUM: "#4E9996",
   DIAMOND: "#6C5CE7",
   MASTER: "#A347D1",
-  GRANDMASTER: "#z",
+  GRANDMASTER: "#d66d7c",
   CHALLENGER: "#4BB7FF",
 });
 
