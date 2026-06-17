@@ -1,3 +1,4 @@
 # Local secrets — holds RIOT_API_KEY, loaded at runtime by js/config.js
 .env
 .vscode/
+**/.DS_Store
