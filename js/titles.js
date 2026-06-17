@@ -1,13 +1,15 @@
-// Challenge title data from CommunityDragon. The big challenges.json holds a
-// `titles` map (UUID -> { name, itemId, ... }); a player's preferences.title
-// (from lol-challenges-v1) is the title's numeric itemId as a string. We build
-// an itemId -> name lookup so that id can be resolved to a display name.
+// Challenge metadata from CommunityDragon's challenges.json. It holds a
+// `titles` map (UUID -> { name, itemId, ... }) and a `challenges` map keyed by
+// challengeId (-> { name, description, ... }). We build two lookups: itemId ->
+// title name (for preferences.title) and challengeId -> { name, description }
+// (for the pinned-challenge tooltips).
 
 const TITLES_URL =
   "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data" +
   "/global/default/v1/challenges.json";
 
-const titleById = {}; // itemId (number) -> "Apprentice"
+const titleById = {};     // itemId (number) -> "Apprentice"
+const challengeById = {}; // challengeId (string) -> { name, description }
 
 export async function loadTitles() {
   try {
@@ -16,8 +18,11 @@ export async function loadTitles() {
     for (const t of Object.values(json.titles || {})) {
       if (t && t.itemId != null) titleById[t.itemId] = t.name;
     }
+    for (const [id, c] of Object.entries(json.challenges || {})) {
+      if (c) challengeById[id] = { name: c.name, description: c.description };
+    }
   } catch (e) {
-    console.error("Failed to load challenge titles", e);
+    console.error("Failed to load challenge data", e);
   }
 }
 
@@ -26,4 +31,11 @@ export async function loadTitles() {
 export function titleNameById(titleId) {
   if (titleId == null || titleId === "") return null;
   return titleById[Number(titleId)] || null;
+}
+
+// Resolve a challenge's { name, description } by its challengeId. Returns null
+// when unknown or not yet loaded.
+export function challengeInfoById(challengeId) {
+  if (challengeId == null) return null;
+  return challengeById[String(challengeId)] || null;
 }

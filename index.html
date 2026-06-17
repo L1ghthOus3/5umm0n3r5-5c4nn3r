@@ -529,6 +529,38 @@
     font-size: 15px;
     color: var(--blue-bright);
   }
+  /* pinned challenge tokens next to the rank/LP */
+  .sc-challenges { display: inline-flex; align-items: center; gap: 6px; }
+  .sc-challenge-token {
+    width: 26px; height: 26px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
+    cursor: help;
+  }
+  /* cursor-following tooltip for a pinned challenge; border set inline to the
+     challenge rank color */
+  .challenge-tip {
+    position: fixed;
+    z-index: 60;
+    max-width: 260px;
+    padding: 11px 14px;
+    background: rgba(6, 12, 28, 0.97);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    font-family: "Space Mono", monospace;
+  }
+  .challenge-tip .ct-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .challenge-tip .ct-desc {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ink-dim);
+  }
 
   /* win-rate ring */
   .sc-winrate { flex: 0 0 auto; text-align: center; }
@@ -1105,6 +1137,7 @@
           <div class="sc-rankline">
             <span class="sc-rank" id="scRank"><span class="sc-medal"></span><span id="scRankText">UNRANKED</span></span>
             <span class="sc-lp" id="scLp"></span>
+            <span class="sc-challenges" id="scChallenges"></span>
           </div>
         </div>
         <div class="sc-winrate">
@@ -1135,6 +1168,8 @@
       · <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
     </div>
   </div>
+
+  <div class="challenge-tip" id="challengeTip" hidden></div>
 
   <script type="module" src="js/main.js"></script>
 </body>

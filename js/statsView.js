@@ -6,9 +6,10 @@ import {
 } from "./riotApi.js";
 import {
   profileIconUrl, championIconById, championNameById, itemIconUrl,
+  challengeIconUrl,
 } from "./champions.js";
 import { queueName, queueCategory } from "./queues.js";
-import { titleNameById } from "./titles.js";
+import { titleNameById, challengeInfoById } from "./titles.js";
 import { rankColor } from "./config.js";
 
 const PER_PAGE = 10;
@@ -98,6 +99,8 @@ export function initStatsView() {
     rank: document.getElementById("scRank"),
     rankText: document.getElementById("scRankText"),
     lp: document.getElementById("scLp"),
+    challenges: document.getElementById("scChallenges"),
+    tip: document.getElementById("challengeTip"),
     ring: document.getElementById("wrRing"),
     pct: document.getElementById("wrPct"),
     record: document.getElementById("wrRecord"),
@@ -118,6 +121,7 @@ export function initStatsView() {
     ranked: null,
     challengeLevel: null, // totalPoints.level from lol-challenges-v1 (or null)
     titleId: null,        // preferences.title (itemId) from lol-challenges-v1
+    chosenChallenges: [], // the 3 pinned challenges: [{ challengeId, level }]
     seen: { wins: 0, total: 0 }, // win rate fallback from loaded matches
   };
 
@@ -180,6 +184,58 @@ export function initStatsView() {
       const { wins, total } = state.seen;
       setWinRate(total ? Math.round((wins / total) * 100) : 0, wins, total - wins);
     }
+
+    // The player's 3 pinned challenge tokens, next to the rank/LP.
+    el.challenges.innerHTML = state.chosenChallenges
+      .map(({ challengeId, level }) => {
+        const url = challengeIconUrl(challengeId, level);
+        return url
+          ? `<img class="sc-challenge-token" data-cid="${escapeHtml(challengeId)}" ` +
+            `data-level="${escapeHtml(level)}" alt="${escapeHtml(level)}" ` +
+            `loading="lazy" src="${url}">`
+          : "";
+      })
+      .join("");
+    el.challenges.querySelectorAll("img").forEach((img) => {
+      img.onerror = () => img.remove();
+      wireChallengeTip(img);
+    });
+  }
+
+  // ---- pinned-challenge tooltip ----
+  // A small bubble that follows the cursor over a challenge token, showing the
+  // challenge name + description, bordered with its rank color.
+  function wireChallengeTip(img) {
+    const info = challengeInfoById(img.dataset.cid);
+    const level = img.dataset.level;
+    if (!info) return; // titles/challenges map not loaded — no tooltip
+    img.addEventListener("mouseenter", (e) => { showTip(info, level); moveTip(e); });
+    img.addEventListener("mousemove", moveTip);
+    img.addEventListener("mouseleave", hideTip);
+  }
+
+  function showTip(info, level) {
+    el.tip.innerHTML =
+      `<div class="ct-name">${escapeHtml(info.name || "")}</div>` +
+      `<div class="ct-desc">${escapeHtml(info.description || "")}</div>`;
+    el.tip.style.borderColor = rankColor(level) || "var(--cyan)";
+    el.tip.hidden = false;
+  }
+
+  function moveTip(e) {
+    const pad = 8;
+    const tw = el.tip.offsetWidth;
+    const th = el.tip.offsetHeight;
+    let x = e.clientX + 14;
+    let y = e.clientY + 16;
+    if (x + tw > window.innerWidth - pad) x = e.clientX - tw - 14;
+    if (y + th > window.innerHeight - pad) y = e.clientY - th - 16;
+    el.tip.style.left = `${x}px`;
+    el.tip.style.top = `${y}px`;
+  }
+
+  function hideTip() {
+    el.tip.hidden = true;
   }
 
   // ---- match rows ----
@@ -543,6 +599,17 @@ export function initStatsView() {
     state.ranked = ranked;
     state.challengeLevel = challenges?.totalPoints?.level || null;
     state.titleId = challenges?.preferences?.title || null;
+
+    // The 3 pinned challenges: take the ids from preferences and look each one
+    // up in the challenges list to get its level (for the token icon).
+    const pinnedIds = challenges?.preferences?.challengeIds || [];
+    const byId = new Map(
+      (challenges?.challenges || []).map((c) => [c.challengeId, c])
+    );
+    state.chosenChallenges = pinnedIds
+      .map((id) => byId.get(id))
+      .filter((c) => c && c.level)
+      .map((c) => ({ challengeId: c.challengeId, level: c.level }));
 
     if (state.ids.length === 0) {
       el.list.innerHTML = '<div class="match-empty">No recent matches found.</div>';
