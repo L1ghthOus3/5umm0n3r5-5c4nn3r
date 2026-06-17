@@ -7,6 +7,7 @@ import {
   profileIconUrl, championIconById, championNameById, itemIconUrl,
 } from "./champions.js";
 import { queueName, queueCategory } from "./queues.js";
+import { titleNameById } from "./titles.js";
 import { rankColor } from "./config.js";
 
 const PER_PAGE = 10;
@@ -92,6 +93,7 @@ export function initStatsView() {
     tag: document.getElementById("scTag"),
     region: document.getElementById("scRegion"),
     challenge: document.getElementById("scChallenge"),
+    title: document.getElementById("scTitle"),
     rank: document.getElementById("scRank"),
     rankText: document.getElementById("scRankText"),
     lp: document.getElementById("scLp"),
@@ -114,6 +116,7 @@ export function initStatsView() {
     page: 0,
     ranked: null,
     challengeLevel: null, // totalPoints.level from lol-challenges-v1 (or null)
+    titleId: null,        // preferences.title (itemId) from lol-challenges-v1
     seen: { wins: 0, total: 0 }, // win rate fallback from loaded matches
   };
 
@@ -140,6 +143,16 @@ export function initStatsView() {
       el.challenge.hidden = false;
     } else {
       el.challenge.hidden = true;
+    }
+
+    // Challenge title next to the region/challenge chips (resolved from the
+    // CommunityDragon titles map; hidden if unknown or not yet loaded).
+    const title = titleNameById(state.titleId);
+    if (title) {
+      el.title.textContent = title;
+      el.title.hidden = false;
+    } else {
+      el.title.hidden = true;
     }
 
     if (firstMatch) {
@@ -510,6 +523,7 @@ export function initStatsView() {
     state.ids = ids || [];
     state.ranked = ranked;
     state.challengeLevel = challenges?.totalPoints?.level || null;
+    state.titleId = challenges?.preferences?.title || null;
 
     if (state.ids.length === 0) {
       el.list.innerHTML = '<div class="match-empty">No recent matches found.</div>';
