@@ -103,7 +103,7 @@
 
     <div class="eyebrow">// LEGAL</div>
     <h1>Privacy Policy</h1>
-    <div class="updated">Last updated: 11 June 2026</div>
+    <div class="updated">Last updated: 18 June 2026</div>
 
     <p>
       This Privacy Policy explains how <b>5umm0n3r-5c4nn3r</b> (the “Service”), available at
@@ -114,8 +114,10 @@
 
     <div class="note">
       Short version: we don't use cookies, we don't run analytics or tracking, and we don't store your
-      searches. When you look up a summoner, your request is forwarded to Riot Games in real time and the
-      result is shown to you — nothing is kept on our side.
+      searches on our servers. When you look up a summoner, your request is forwarded to Riot Games in real
+      time and the result is shown to you — nothing is kept on our side. The only thing saved is the last
+      Riot ID and region you looked up, stored locally in your own browser so you stay signed in — it never
+      leaves your device, and signing out erases it.
     </div>
 
     <h2>1. Who is responsible (Data Controller)</h2>
@@ -142,12 +144,18 @@
         <b>Technical connection data</b> — like any website, our hosting provider automatically receives
         your IP address and basic request metadata (browser type, timestamp) when your browser connects.
       </li>
+      <li>
+        <b>Your last lookup, stored in your browser</b> — the Riot ID and region from your most recent
+        successful lookup are saved in your browser's <i>local storage</i> so that the Service can keep you
+        signed in across page reloads. This stays on your device, is never sent to or readable by us, and is
+        removed when you sign out.
+      </li>
     </ul>
 
     <h2>3. What we do NOT do</h2>
     <ul>
-      <li>We do <b>not</b> store your searches, the Riot IDs you enter, or any results in a database or cache.</li>
-      <li>We do <b>not</b> set cookies or use local storage.</li>
+      <li>We do <b>not</b> store your searches, the Riot IDs you enter, or any results on our servers, in a database, or in a cache.</li>
+      <li>We do <b>not</b> set cookies. We use your browser's local storage <b>only</b> to remember your last lookup so you stay signed in (see section 2); we cannot read it.</li>
       <li>We do <b>not</b> use any analytics, advertising, or third-party tracking.</li>
       <li>We do <b>not</b> require you to create an account or provide an email to use the Service.</li>
       <li>We do <b>not</b> sell or rent any data to anyone.</li>
@@ -190,9 +198,15 @@
 
     <h2>7. Data retention</h2>
     <p>
-      We do not retain the data you submit. It exists only for the moment needed to fulfil your request.
-      Transient server logs that may contain your IP address are handled by our hosting provider (Vercel)
-      according to their retention practices, and are used only for operating and securing the Service.
+      We do not retain the data you submit on our side. It exists only for the moment needed to fulfil your
+      request. Transient server logs that may contain your IP address are handled by our hosting provider
+      (Vercel) according to their retention practices, and are used only for operating and securing the
+      Service.
+    </p>
+    <p>
+      The single exception is the last Riot ID and region you looked up, which is kept in your own browser's
+      local storage to keep you signed in. It remains there until you sign out, clear your browser's site
+      data, or look up a different summoner. We have no access to it and keep no copy.
     </p>
 
     <h2>8. Your rights</h2>
@@ -200,7 +214,8 @@
       Under the GDPR you have the right to access, rectify, erase, restrict, or object to the processing of
       your personal data, and the right to data portability. Because we do not store the data you submit,
       there is generally no record on our side to access, correct, or delete — but you may still contact us
-      with any request at <a href="mailto:sirtristanus@gmail.com">sirtristanus@gmail.com</a>.
+      with any request at <a href="mailto:sirtristanus@gmail.com">sirtristanus@gmail.com</a>. You can erase
+      the lookup saved in your browser at any time by signing out or clearing your browser's site data.
     </p>
     <p>
       Note that match history, ranked standing, and Riot IDs are <b>public game data controlled by Riot
