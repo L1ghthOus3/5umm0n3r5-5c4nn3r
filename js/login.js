@@ -3,6 +3,7 @@
 import { NAME_PATTERN } from "./config.js";
 import { fetchAccount } from "./riotApi.js";
 import { initStatsView } from "./statsView.js";
+import { loadSavedSummoner, clearSummoner } from "./session.js";
 
 export function initConsole() {
   const form = document.getElementById("loginForm");
@@ -140,8 +141,9 @@ export function initConsole() {
     submitName(trimmedName());
   });
 
-  // Sign out — return to the login window.
+  // Sign out — return to the login window and forget the saved session.
   backBtn.addEventListener("click", () => {
+    clearSummoner();
     status = "idle";
     account = null;
     error = "";
@@ -150,6 +152,15 @@ export function initConsole() {
     input.focus();
   });
 
-  input.focus();
+  // Restore a previous session: prefill the form and sign back in automatically.
+  const saved = loadSavedSummoner();
+  if (saved) {
+    input.value = saved.name;
+    region.value = saved.region;
+    submitName(saved.name);
+  } else {
+    input.focus();
+  }
+
   render();
 }
