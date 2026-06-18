@@ -532,7 +532,7 @@
   /* pinned challenge tokens next to the rank/LP */
   .sc-challenges { display: inline-flex; align-items: center; gap: 6px; }
   .sc-challenge-token {
-    width: 26px; height: 26px;
+    width: 32px; height: 32px;
     object-fit: contain;
     filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
     cursor: help;
@@ -606,7 +606,7 @@
   /* match history */
   .mh-head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
   }
@@ -616,6 +616,36 @@
     letter-spacing: 2px;
     color: var(--blue-bright);
     text-shadow: 0 0 12px rgba(43, 214, 255, 0.35);
+  }
+
+  /* tab bar (MATCH HISTORY / CHALLENGES) — boxed, segmented control */
+  .mh-tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .mh-tab {
+    font-family: "Press Start 2P", monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--ink-dim);
+    background: rgba(7, 20, 44, 0.7);
+    border: 2px solid rgba(91, 168, 255, 0.25);
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .mh-tab:hover:not(.active) {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 14px rgba(43, 214, 255, 0.2);
+  }
+  .mh-tab.active {
+    color: #03101f;
+    background: linear-gradient(180deg, var(--cyan), var(--blue));
+    border-color: var(--cyan);
+    box-shadow: 0 0 16px rgba(43, 214, 255, 0.35);
+    cursor: default;
   }
   .mh-meta {
     font-family: "VT323", monospace;
@@ -974,6 +1004,182 @@
     .md-name { flex-basis: 110px; }
   }
 
+  /* ===== Challenges tab ===== */
+  .challenges-view { animation: resultIn .2s ease; }
+
+  /* overview rect: crystal + total points on the left, category bars on the right */
+  .ch-overview {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 18px 24px;
+    background: rgba(7, 20, 44, 0.55);
+    border: 2px solid rgba(91, 168, 255, 0.30);
+    box-shadow: inset 0 0 40px rgba(10, 61, 145, 0.25);
+    flex-wrap: wrap;
+  }
+
+  .ch-total-block { display: flex; align-items: center; gap: 18px; flex: 0 0 auto; }
+  .ch-crystal {
+    width: 76px; height: 76px;
+    flex: 0 0 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* the crystal diamond; color comes from --cc (the total-points rank color) */
+  .ch-crystal i {
+    display: block;
+    width: 50px; height: 50px;
+    transform: rotate(45deg);
+    color: var(--cc, var(--cyan));
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.16) 0 3px, transparent 3px 7px),
+      linear-gradient(135deg, var(--cc, var(--cyan)), #03060f 150%);
+    border: 2px solid currentColor;
+    box-shadow: 0 0 18px currentColor, inset 0 0 14px rgba(0,0,0,0.5);
+  }
+  .ch-points {
+    font-family: "Press Start 2P", monospace;
+    font-size: 26px;
+    line-height: 1;
+    color: #eaf4ff;
+    text-shadow: 0 0 16px rgba(43, 214, 255, 0.35);
+  }
+  .ch-points-label {
+    font-family: "Press Start 2P", monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--ink-dim);
+    margin-top: 10px;
+  }
+  .ch-level {
+    font-family: "Press Start 2P", monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-top: 12px;
+    color: var(--cc, var(--cyan));
+    text-shadow: 0 0 12px rgba(43, 214, 255, 0.25);
+  }
+
+  /* category breakdown: one row per category — name · bar · value */
+  .ch-cats { flex: 1 1 340px; min-width: 280px; display: flex; flex-direction: column; gap: 11px; }
+  .ch-cat { display: flex; align-items: center; gap: 12px; }
+  .ch-cat-name {
+    flex: 0 0 96px;
+    font-family: "Press Start 2P", monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--ink-dim);
+  }
+  .ch-cat-track { flex: 1; height: 6px; background: rgba(91, 168, 255, 0.15); }
+  .ch-cat-fill { height: 100%; background: var(--cat); box-shadow: 0 0 8px var(--cat); }
+  .ch-cat-val {
+    flex: 0 0 auto;
+    min-width: 124px;
+    text-align: right;
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: #eaf4ff;
+    white-space: nowrap;
+  }
+  /* the "/ max" portion is dimmed so the current value reads first */
+  .ch-cat-max { color: var(--ink-dim); font-weight: 400; }
+
+  .ch-empty {
+    font-family: "VT323", monospace;
+    font-size: 19px;
+    color: var(--ink-dim);
+    padding: 22px 4px;
+    text-align: center;
+  }
+
+  /* per-challenge list */
+  .ch-list {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 42vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .ch-list::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* row accent (icon border, rank text, bottom bar) comes from --rc = rank color */
+  .ch-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px 15px;
+    background: rgba(7, 20, 44, 0.55);
+    border: 1px solid rgba(91, 168, 255, 0.12);
+  }
+  .ch-row-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 3px;
+    background: var(--rc, var(--cyan));
+    box-shadow: 0 0 10px var(--rc, var(--cyan));
+  }
+  .ch-row-icon { flex: 0 0 48px; width: 48px; height: 48px; }
+  .ch-row-icon img {
+    width: 48px; height: 48px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
+  }
+  .ch-row-icon .fallback {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--rc, rgba(91, 168, 255, 0.4));
+    background: #03060f;
+    font-family: "Press Start 2P", monospace;
+    font-size: 11px;
+    color: var(--rc, #eaf4ff);
+  }
+  .ch-row-main { flex: 0 0 220px; min-width: 0; }
+  .ch-row-name {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: #eaf4ff;
+    margin-bottom: 5px;
+    overflow-wrap: anywhere;
+  }
+  .ch-row-stat {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--blue-bright);
+  }
+  .ch-row-desc {
+    flex: 1;
+    min-width: 0;
+    font-family: "Space Mono", monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--ink-dim);
+  }
+  .ch-row-rank {
+    flex: 0 0 auto;
+    min-width: 108px;
+    text-align: right;
+    font-family: "Press Start 2P", monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--rc, var(--cyan));
+  }
+
+  @media (max-width: 720px) {
+    .ch-row-desc { display: none; }
+    .ch-row-main { flex: 1; }
+  }
+
   .legal {
     position: absolute;
     bottom: 14px;
@@ -1152,12 +1358,16 @@
       </div>
 
       <div class="mh-head" id="mhHead">
-        <span class="mh-title">MATCH HISTORY</span>
+        <div class="mh-tabs" id="mhTabs" role="tablist">
+          <button class="mh-tab active" type="button" role="tab" data-tab="matches" aria-selected="true">MATCH HISTORY</button>
+          <button class="mh-tab" type="button" role="tab" data-tab="challenges" aria-selected="false">CHALLENGES</button>
+        </div>
         <span class="mh-meta" id="mhMeta"></span>
       </div>
       <div class="match-list" id="matchList"></div>
       <div class="pager" id="pager"></div>
       <div class="match-detail" id="matchDetail" hidden></div>
+      <div class="challenges-view" id="challengesView" hidden></div>
     </section>
 
     <div class="horizon"></div>

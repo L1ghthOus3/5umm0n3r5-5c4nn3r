@@ -11,6 +11,7 @@ import {
 import { queueName, queueCategory } from "./queues.js";
 import { titleNameById, challengeInfoById } from "./titles.js";
 import { rankColor } from "./config.js";
+import { saveSummoner } from "./session.js";
 
 const PER_PAGE = 10;
 const ID_LIMIT = 100; // Match-V5 caps /ids at 100 per request.
@@ -19,6 +20,28 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
+
+// Group digits with a thin space for the challenge totals (e.g. 132201 -> "132 201").
+function formatNum(n) {
+  return String(n ?? 0).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+// Fixed per-category accent colors for the challenge breakdown bars, plus the
+// order they appear in the overview rect.
+const CATEGORY_COLOR = Object.freeze({
+  EXPERTISE: "#f2c84b",
+  TEAMWORK: "#2bd6ff",
+  IMAGINATION: "#c46bff",
+  VETERANCY: "#57f5b0",
+  COLLECTION: "#5aa8ff",
+});
+const CATEGORY_ORDER = ["EXPERTISE", "TEAMWORK", "IMAGINATION", "VETERANCY", "COLLECTION"];
+
+// Highest-to-lowest ordering for sorting the challenge list by rank.
+const RANK_ORDER = {
+  CHALLENGER: 10, GRANDMASTER: 9, MASTER: 8, DIAMOND: 7, EMERALD: 6,
+  PLATINUM: 5, GOLD: 4, SILVER: 3, BRONZE: 2, IRON: 1, NONE: 0,
+};
 
 function timeAgo(ms) {
   const s = Math.floor((Date.now() - ms) / 1000);
@@ -105,10 +128,13 @@ export function initStatsView() {
     pct: document.getElementById("wrPct"),
     record: document.getElementById("wrRecord"),
     head: document.getElementById("mhHead"),
+    tabs: document.getElementById("mhTabs"),
     meta: document.getElementById("mhMeta"),
     list: document.getElementById("matchList"),
     pager: document.getElementById("pager"),
     detail: document.getElementById("matchDetail"),
+    challengesView: document.getElementById("challengesView"),
+    card: document.querySelector(".summoner-card"),
   };
 
   const state = {
@@ -121,6 +147,7 @@ export function initStatsView() {
     ranked: null,
     challengeLevel: null, // totalPoints.level from lol-challenges-v1 (or null)
     titleId: null,        // preferences.title (itemId) from lol-challenges-v1
+    challengeData: null,  // full lol-challenges-v1 player-data (for the Challenges tab)
     chosenChallenges: [], // the 3 pinned challenges: [{ challengeId, level }]
     seen: { wins: 0, total: 0 }, // win rate fallback from loaded matches
   };
@@ -582,11 +609,14 @@ export function initStatsView() {
   async function load(account, region) {
     state.account = account;
     state.region = region;
+    // Persist whoever we're now viewing so a reload restores this profile —
+    // covers the initial login, a restored session, and switching players.
+    saveSummoner(`${account.gameName}#${account.tagLine}`, region);
     state.cache.clear();
     state.raw.clear();
     state.seen = { wins: 0, total: 0 };
     state.page = 0;
-    restoreListView();
+    selectTab("matches"); // always open a freshly loaded profile on match history
 
     // Match ids (throws on hard failure → handled by caller) + ranked and
     // challenges (both best-effort; a failure here must not block login).
@@ -599,6 +629,7 @@ export function initStatsView() {
     state.ranked = ranked;
     state.challengeLevel = challenges?.totalPoints?.level || null;
     state.titleId = challenges?.preferences?.title || null;
+    state.challengeData = challenges;
 
     // The 3 pinned challenges: take the ids from preferences and look each one
     // up in the challenges list to get its level (for the token icon).
@@ -622,6 +653,141 @@ export function initStatsView() {
     await showPage(0);
     renderCard(state.cache.get(state.ids[0]) || null);
   }
+
+  // ---- tabs ----
+  // Switch the active tab. Only "matches" exists today; future tabs add a
+  // button (with data-tab) in index.html and a branch here to show their panel.
+  function selectTab(name) {
+    el.tabs.querySelectorAll(".mh-tab").forEach((btn) => {
+      const active = btn.dataset.tab === name;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+
+    // The summoner card stays for match history but is hidden on the
+    // challenges tab, which has its own overview rect. (Toggle display rather
+    // than [hidden] — the card's `display: flex` would override the attribute.)
+    el.card.style.display = name === "challenges" ? "none" : "";
+
+    if (name === "matches") {
+      restoreListView();       // shows list + pager, hides any open detail
+      el.meta.style.display = ""; // the "N games · showing X-Y" meta
+      el.challengesView.hidden = true;
+      return;
+    }
+
+    // Any non-matches tab: hide the match-history widgets.
+    el.list.style.display = "none";
+    el.pager.style.display = "none";
+    el.detail.hidden = true;
+    el.meta.style.display = "none";
+    el.challengesView.hidden = name !== "challenges";
+
+    if (name === "challenges") renderChallenges();
+  }
+
+  // Render the challenges overview rect: total points crystal + per-category
+  // progress bars, from the lol-challenges-v1 player-data.
+  function renderChallenges() {
+    const data = state.challengeData;
+    if (!data || !data.totalPoints) {
+      el.challengesView.innerHTML =
+        '<div class="ch-empty">No challenge data available.</div>';
+      return;
+    }
+
+    const tp = data.totalPoints;
+    const crystal = rankColor(tp.level) || "var(--cyan)";
+    const cats = data.categoryPoints || {};
+
+    const catsHtml = CATEGORY_ORDER.map((key) => {
+      const c = cats[key];
+      if (!c) return "";
+      const pct = c.max ? Math.min(100, Math.round((c.current / c.max) * 100)) : 0;
+      return (
+        `<div class="ch-cat">` +
+          `<span class="ch-cat-name">${key}</span>` +
+          `<div class="ch-cat-track">` +
+            `<div class="ch-cat-fill" style="width:${pct}%;--cat:${CATEGORY_COLOR[key]}"></div>` +
+          `</div>` +
+          `<span class="ch-cat-val">${formatNum(c.current)} <span class="ch-cat-max">/ ${formatNum(c.max)}</span></span>` +
+        `</div>`
+      );
+    }).join("");
+
+    el.challengesView.innerHTML =
+      `<div class="ch-overview">` +
+        `<div class="ch-total-block">` +
+          `<div class="ch-crystal" style="--cc:${crystal}"><i></i></div>` +
+          `<div>` +
+            `<div class="ch-points">${formatNum(tp.current)}</div>` +
+            `<div class="ch-points-label">CHALLENGE POINTS</div>` +
+            `<div class="ch-level" style="--cc:${crystal}">${escapeHtml(tp.level || "UNRANKED")}</div>` +
+          `</div>` +
+        `</div>` +
+        `<div class="ch-cats">${catsHtml}</div>` +
+      `</div>` +
+      `<div class="ch-list">${challengeListHtml(data.challenges)}</div>`;
+
+    // Token images: swap to a 2-letter fallback box if the asset 404s.
+    el.challengesView.querySelectorAll(".ch-row-icon img").forEach((img) => {
+      img.onerror = () => {
+        const box = document.createElement("div");
+        box.className = "fallback";
+        box.textContent = img.dataset.fb || "?";
+        img.replaceWith(box);
+      };
+    });
+  }
+
+  // Build the per-challenge rows. The first 6 entries are overview/capstone
+  // aggregates, so we skip them; the rest are sorted by rank (then rarity) and
+  // their names/descriptions come from the CommunityDragon challenges.json.
+  function challengeListHtml(challenges) {
+    const rows = (challenges || [])
+      .slice(6)
+      .filter((c) => c.level && c.level !== "NONE")
+      .sort((a, b) =>
+        (RANK_ORDER[b.level] || 0) - (RANK_ORDER[a.level] || 0) ||
+        (a.percentile ?? 1) - (b.percentile ?? 1)
+      );
+
+    if (rows.length === 0) {
+      return '<div class="ch-empty">No ranked challenges yet.</div>';
+    }
+
+    return rows.map((c) => {
+      const info = challengeInfoById(c.challengeId) || {};
+      const name = info.name || `Challenge ${c.challengeId}`;
+      const rc = rankColor(c.level) || "var(--cyan)";
+      const icon = challengeIconUrl(c.challengeId, c.level);
+      const fb = name.slice(0, 2).toUpperCase();
+      const iconHtml = icon
+        ? `<img alt="${escapeHtml(c.level)}" loading="lazy" src="${icon}" data-fb="${escapeHtml(fb)}">`
+        : `<div class="fallback">${escapeHtml(fb)}</div>`;
+      const pct = c.percentile != null ? `Top ${(c.percentile * 100).toFixed(1)}%` : "";
+      const val = c.value != null ? formatNum(c.value) : "";
+      const stat = [pct, val].filter(Boolean).join(" · ");
+
+      return (
+        `<div class="ch-row" style="--rc:${rc}">` +
+          `<div class="ch-row-icon">${iconHtml}</div>` +
+          `<div class="ch-row-main">` +
+            `<div class="ch-row-name">${escapeHtml(name)}</div>` +
+            `<div class="ch-row-stat">${escapeHtml(stat)}</div>` +
+          `</div>` +
+          `<div class="ch-row-desc">${escapeHtml(info.description || "")}</div>` +
+          `<div class="ch-row-rank">${escapeHtml(c.level)}</div>` +
+          `<div class="ch-row-bar"></div>` +
+        `</div>`
+      );
+    }).join("");
+  }
+
+  el.tabs.addEventListener("click", (e) => {
+    const btn = e.target.closest(".mh-tab");
+    if (btn && !btn.classList.contains("active")) selectTab(btn.dataset.tab);
+  });
 
   return { load };
 }

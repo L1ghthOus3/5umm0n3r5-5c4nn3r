@@ -12,6 +12,7 @@ export const RANK_COLOR = Object.freeze({
   SILVER: "#8090A0",
   GOLD: "#C89B3C",
   PLATINUM: "#4E9996",
+  EMERALD: "#3FBF7F",
   DIAMOND: "#6C5CE7",
   MASTER: "#A347D1",
   GRANDMASTER: "#d66d7c",
