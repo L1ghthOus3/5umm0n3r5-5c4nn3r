@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Champion Dex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/champion-dex.css" />
+</head>
+<body>
+  <div class="dex-scene">
+    <div class="grid-layer"></div>
+    <canvas id="stars"></canvas>
+
+    <div class="dex-wrap">
+      <div class="topbar">
+        <a class="brand" href="index.html">5UMM0N3R5<span>//</span>5C4NN3R</a>
+        <a class="navbtn" href="index.html">&larr; LOGIN</a>
+      </div>
+
+      <!-- Search + grid (shown when there is no #champion fragment). -->
+      <section id="dexBrowse">
+        <div class="dex-head">
+          <div class="dex-eyebrow">// CHAMPION DATABASE</div>
+          <h1 class="dex-title">LOOK UP A CHAMPION</h1>
+          <form class="dex-search" id="dexForm" autocomplete="off">
+            <span class="dex-sigil">&#8981;</span>
+            <input
+              id="dexInput"
+              class="dex-input"
+              type="text"
+              placeholder="search a champion…"
+              autocomplete="off"
+              spellcheck="false" />
+            <button class="dex-go" type="submit">GO</button>
+          </form>
+          <div class="dex-filters" id="dexFilters"></div>
+        </div>
+
+        <div class="dex-meta" id="dexMeta"></div>
+        <div class="dex-grid" id="dexGrid">
+          <div class="dex-loading" style="grid-column:1/-1">loading champions<span class="blink"> _</span></div>
+        </div>
+      </section>
+
+      <!-- One champion (shown when the URL has a #champion fragment). -->
+      <section id="dexDetail" hidden>
+        <div class="dex-detail-bar">
+          <div class="dex-eyebrow">// CHAMPION DATABASE</div>
+          <button class="navbtn" id="dexBack" type="button">&larr; CHAMPION DEX</button>
+        </div>
+        <div id="champDetail"></div>
+      </section>
+    </div>
+
+    <div class="crt"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <script type="module">
+    import { startStarField } from "/js/starfield.js";
+    import { initDex } from "/js/championDex.js";
+    const stars = document.getElementById("stars");
+    if (stars) startStarField(stars);
+    initDex();
+  </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+/* Shared styles for the Champion Dex pages (champion-dex.html and the
+   champion-dex/champion.html detail template). The retro-terminal tokens
+   and the dex/champ-card class shapes mirror the login/profile console in
+   index.html so the dex feels like part of the same app. */
+
+:root {
+  --bg-0: #03060f;
+  --bg-1: #060c1f;
+  --bg-2: #0a1631;
+  --grid: rgba(40, 110, 200, 0.10);
+  --cyan: #2bd6ff;
+  --cyan-deep: #0a93c8;
+  --blue: #3b82f6;
+  --blue-bright: #5aa8ff;
+  --blue-deep: #0a3d91;
+  --ink: #cfe6ff;
+  --ink-dim: #6f8fbf;
+  --danger: #ff5d7a;
+  --ok: #57f5b0;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg-0);
+  color: var(--ink);
+  font-family: "Space Mono", monospace;
+}
+
+/* ===== Scene / background ===== */
+.dex-scene {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background:
+    radial-gradient(120% 70% at 50% -10%, #0d2350 0%, var(--bg-1) 40%, var(--bg-0) 100%);
+}
+
+.grid-layer {
+  position: fixed;
+  inset: -50% -50% -50% -50%;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(420px) rotateX(62deg) translateZ(0);
+  transform-origin: 50% 40%;
+  animation: gridDrift 14s linear infinite;
+  opacity: 0.6;
+  mask-image: radial-gradient(80% 70% at 50% 60%, #000 30%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes gridDrift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 44px, 44px 0; }
+}
+
+#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.crt {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(0, 0, 0, 0.22) 3px,
+      rgba(0, 0, 0, 0.22) 4px
+    );
+  mix-blend-mode: multiply;
+}
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 51;
+  background: radial-gradient(110% 90% at 50% 45%, transparent 55%, rgba(0,0,0,0.6) 100%);
+}
+
+.dex-wrap {
+  position: relative;
+  z-index: 10;
+  width: min(940px, 94vw);
+  margin: 0 auto;
+  padding: 36px 0 90px;
+  animation: viewIn .5s ease both;
+}
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== top bar ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+.topbar .brand {
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--blue-bright);
+  text-shadow: 0 0 14px rgba(43,214,255,0.4);
+  text-decoration: none;
+}
+.topbar .brand span { color: var(--cyan); }
+.navbtn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--cyan);
+  background: rgba(8,18,40,0.6);
+  border: 2px solid rgba(43,214,255,0.35);
+  padding: 9px 13px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all .15s ease;
+}
+.navbtn:hover {
+  color: #eaf4ff;
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(43,214,255,0.35);
+}
+
+/* ===== Dex header + search ===== */
+.dex-head { width: 100%; max-width: 660px; margin: 0 auto; text-align: center; }
+.dex-eyebrow {
+  font-family: "Press Start 2P", monospace; font-size: 8px; letter-spacing: 3px;
+  color: #44608c; margin: 6px 0 16px;
+}
+.dex-title {
+  font-family: "Press Start 2P", monospace; font-size: 20px; color: #eaf4ff;
+  text-shadow: 0 0 18px rgba(43,214,255,0.4); margin: 0 0 26px; line-height: 1.4;
+}
+.dex-search {
+  display: flex; align-items: stretch; background: rgba(6,14,33,0.85);
+  border: 2px solid rgba(91,168,255,0.35);
+  box-shadow: inset 0 0 24px rgba(10,61,145,0.25), 0 0 24px rgba(10,61,145,0.3);
+}
+.dex-search:focus-within {
+  border-color: var(--cyan);
+  box-shadow: inset 0 0 24px rgba(10,61,145,0.3), 0 0 26px rgba(43,214,255,0.4);
+}
+.dex-sigil { font-family: "VT323", monospace; font-size: 28px; color: var(--cyan); padding: 6px 4px 0 16px; }
+.dex-input {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: #eaf4ff;
+  font-family: "VT323", monospace; font-size: 26px; letter-spacing: 1px; padding: 12px 10px;
+  caret-color: var(--cyan);
+}
+.dex-input::placeholder { color: #3f5a86; letter-spacing: 1px; }
+.dex-go {
+  font-family: "Press Start 2P", monospace; font-size: 11px; letter-spacing: 1px; color: #03101f;
+  background: linear-gradient(180deg, var(--cyan), var(--blue)); border: 0; padding: 0 24px; cursor: pointer;
+  transition: filter .15s ease;
+}
+.dex-go:hover { filter: brightness(1.12); }
+
+/* role filter chips */
+.dex-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 22px; }
+.dex-filters-lbl { font-family: "Press Start 2P", monospace; font-size: 7px; letter-spacing: 2px; color: #44608c; margin-right: 4px; }
+.dex-chip {
+  font-family: "VT323", monospace; font-size: 17px; color: var(--ink-dim);
+  background: rgba(8,18,40,0.6); border: 2px solid rgba(91,168,255,0.2); padding: 5px 12px;
+  cursor: pointer; transition: all .14s ease;
+}
+.dex-chip:hover { color: #03101f; background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 14px rgba(43,214,255,0.5); }
+.dex-chip.active { color: #03101f; background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 14px rgba(43,214,255,0.5); }
+
+/* result meta line */
+.dex-meta {
+  font-family: "VT323", monospace; font-size: 19px; color: var(--ink-dim);
+  margin: 30px 2px 14px; letter-spacing: .5px;
+}
+.dex-meta b { color: var(--blue-bright); font-weight: 400; }
+
+/* ===== champion grid ===== */
+.dex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.dex-champ {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 12px; text-decoration: none; color: inherit;
+  background: linear-gradient(90deg, rgba(10,22,49,0.55), rgba(6,14,33,0.55));
+  border: 1px solid rgba(91,168,255,0.16);
+  position: relative; overflow: hidden;
+  transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.dex-champ::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--cyan); box-shadow: 0 0 12px var(--cyan);
+  opacity: 0; transition: opacity .2s ease;
+}
+.dex-champ:hover {
+  transform: translateY(-3px);
+  border-color: rgba(91,168,255,0.45);
+  box-shadow: 0 0 22px rgba(10,61,145,0.55);
+}
+.dex-champ:hover::before { opacity: 1; }
+.dex-champ img {
+  width: 44px; height: 44px; flex: none; display: block; image-rendering: auto;
+  border: 1px solid rgba(91,168,255,0.3); background: var(--bg-2);
+}
+.dex-champ .dc-text { min-width: 0; }
+.dex-champ .dc-name {
+  font-family: "VT323", monospace; font-size: 21px; color: #eaf4ff; line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dex-champ .dc-role {
+  font-family: "Press Start 2P", monospace; font-size: 7px; letter-spacing: 1px;
+  color: var(--ink-dim); margin-top: 5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.dex-empty, .dex-loading {
+  font-family: "VT323", monospace; font-size: 22px; color: var(--ink-dim);
+  text-align: center; padding: 60px 0; letter-spacing: 1px;
+}
+.dex-empty .blink, .dex-loading .blink { color: var(--cyan); animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ===================================================================
+   CHAMPION DETAIL CARD
+   =================================================================== */
+.dex-detail-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.champ-card { margin-top: 22px; animation: viewIn .3s ease both; display: flex; flex-direction: column; gap: 10px; }
+
+.cc-hero {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 26px; align-items: center;
+  padding: 24px 28px; position: relative; overflow: hidden;
+  background: linear-gradient(120deg, color-mix(in srgb, hsl(var(--ch-hue) 70% 50%) 16%, rgba(8,16,35,0.92)), rgba(6,14,33,0.92));
+  border: 2px solid rgba(91,168,255,0.28);
+  box-shadow: 0 0 0 6px rgba(8,16,36,0.45), 0 0 0 8px rgba(91,168,255,0.1), inset 0 0 60px rgba(10,61,145,0.22);
+}
+.cc-hero-art {
+  position: absolute; inset: 0; z-index: 0;
+  background-position: 62% 22%; background-size: cover;
+  opacity: 0.22;
+  mask-image: linear-gradient(90deg, transparent 20%, #000 100%);
+}
+.cc-hero > * { position: relative; z-index: 1; }
+.cc-portrait {
+  position: relative; width: 99px; height: 99px; border: 3px solid var(--tier);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--tier) 45%, transparent), inset 0 0 12px rgba(0,0,0,0.5);
+}
+.cc-portrait img { display: block; width: 99px; height: 99px; }
+.cc-name { font-family: "Press Start 2P", monospace; font-size: 21px; color: #eaf4ff; text-shadow: 0 0 16px rgba(43,214,255,0.35); margin: 0 0 8px; line-height: 1.25; }
+.cc-title { font-family: "VT323", monospace; font-size: 21px; color: var(--cyan); letter-spacing: .5px; margin-bottom: 14px; }
+.cc-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.cc-tag { font-family: "VT323", monospace; font-size: 17px; color: var(--ink); background: rgba(91,168,255,0.1); border: 1px solid rgba(91,168,255,0.25); padding: 2px 11px; white-space: nowrap; }
+.cc-tag.role { color: #03101f; background: var(--cyan); border-color: var(--cyan); }
+.cc-diff { display: flex; align-items: center; gap: 10px; }
+.cc-diff .lbl { font-family: "Press Start 2P", monospace; font-size: 7px; letter-spacing: 1px; color: #44608c; }
+.cc-diff .dots { display: flex; gap: 5px; }
+.cc-diff .dots i { width: 10px; height: 10px; background: rgba(91,168,255,0.18); transform: rotate(45deg); }
+.cc-diff .dots i.on { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.cc-diff .dv { font-family: "VT323", monospace; font-size: 17px; color: var(--ink); }
+.cc-hero-big { font-family: "Press Start 2P", monospace; font-size: 40px; line-height: 1; color: var(--cyan); text-shadow: 0 0 22px currentColor; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cc-hero-big small { font-family: "VT323", monospace; font-size: 18px; color: var(--ink-dim); }
+.cc-hero-big span { font-size: 8px; letter-spacing: 2px; color: #44608c; text-shadow: none; }
+
+.cc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.cc-stat { padding: 16px; text-align: center; background: rgba(8,18,40,0.5); border: 1px solid rgba(91,168,255,0.16); }
+.cc-stat .v { font-family: "Press Start 2P", monospace; font-size: 15px; color: #eaf4ff; margin-bottom: 9px; }
+.cc-stat .v small { font-family: "VT323", monospace; font-size: 15px; color: var(--ink-dim); }
+.cc-stat .k { font-family: "Press Start 2P", monospace; font-size: 7px; letter-spacing: 1px; color: var(--ink-dim); }
+.cc-stat .bar { height: 5px; margin-top: 11px; background: rgba(91,168,255,0.12); overflow: hidden; }
+.cc-stat .bar > i { display: block; height: 100%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+.cc-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 10px; align-items: start; }
+.cc-block { background: rgba(8,18,40,0.5); border: 1px solid rgba(91,168,255,0.16); padding: 16px 18px; }
+.cc-block-h { font-family: "Press Start 2P", monospace; font-size: 8px; letter-spacing: 2px; color: var(--cyan); margin-bottom: 14px; }
+.cc-abils { display: flex; flex-direction: column; gap: 9px; }
+.cc-abil { display: grid; grid-template-columns: auto auto 1fr auto; gap: 12px; align-items: center; }
+.cc-abil .key { width: 26px; height: 26px; display: grid; place-items: center; border: 2px solid var(--cyan); color: var(--cyan); font-family: "Press Start 2P", monospace; font-size: 10px; }
+.cc-abil .ico { width: 30px; height: 30px; display: block; border: 1px solid rgba(91,168,255,0.3); background: var(--bg-2); }
+.cc-abil .nm { font-family: "VT323", monospace; font-size: 20px; color: #eaf4ff; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-abil .cd { font-family: "VT323", monospace; font-size: 17px; color: var(--ink-dim); white-space: nowrap; }
+.cc-side { display: flex; flex-direction: column; gap: 10px; }
+
+.cc-basestats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; }
+.cc-bs { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 1px solid rgba(91,168,255,0.1); padding-bottom: 4px; }
+.cc-bs .bk { font-family: "VT323", monospace; font-size: 17px; color: var(--ink-dim); }
+.cc-bs .bv { font-family: "Space Mono", monospace; font-weight: 700; font-size: 14px; color: #eaf4ff; }
+
+.cc-lore { font-family: "VT323", monospace; font-size: 19px; line-height: 1.5; color: var(--ink); }
+
+.dex-error {
+  font-family: "VT323", monospace; font-size: 22px; color: var(--danger);
+  text-align: center; padding: 50px 0; letter-spacing: 1px;
+}
+
+@media (max-width: 720px) {
+  .cc-hero { grid-template-columns: auto 1fr; }
+  .cc-hero-big { display: none; }
+  .cc-stats { grid-template-columns: repeat(2, 1fr); }
+  .cc-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .dex-title { font-size: 15px; }
+  .dex-go { padding: 0 14px; font-size: 9px; }
+  .cc-portrait, .cc-portrait img { width: 80px; height: 80px; }
+  .cc-basestats { grid-template-columns: 1fr; }
+  .topbar { flex-wrap: wrap; }
+}

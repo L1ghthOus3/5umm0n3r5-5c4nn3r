@@ -428,6 +428,18 @@
     border-color: var(--cyan);
     box-shadow: 0 0 18px rgba(43, 214, 255, 0.25);
   }
+  .stats-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  /* Champion Dex link: same chrome as sign-out but cyan-accented to read as a
+     feature link rather than a destructive action. */
+  .dex-link-btn {
+    color: var(--cyan);
+    border-color: rgba(43, 214, 255, 0.40);
+    text-decoration: none;
+  }
 
   /* summoner card */
   .summoner-card {
@@ -1324,7 +1336,10 @@
     <section class="console profile" id="profileView" hidden>
       <div class="stats-topbar">
         <div class="stats-brand">LEAGUE&middot;STATS</div>
-        <button class="signout-btn" id="backBtn" type="button">&lsaquo; SIGN OUT</button>
+        <div class="stats-actions">
+          <a class="signout-btn dex-link-btn" href="champion-dex.html">CHAMPION DEX</a>
+          <button class="signout-btn" id="backBtn" type="button">&lsaquo; SIGN OUT</button>
+        </div>
       </div>
 
       <div class="summoner-card">
